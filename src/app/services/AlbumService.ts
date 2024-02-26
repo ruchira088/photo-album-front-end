@@ -9,7 +9,12 @@ export interface CreateAlbumRequest {
     readonly password?: string
 }
 
-const createPhotoAlbum = async (createAlbumRequest: CreateAlbumRequest): Promise<PhotoAlbum> => {
+export const createPhotoAlbum = async (createAlbumRequest: CreateAlbumRequest): Promise<PhotoAlbum> => {
     const response: AxiosResponse<PhotoAlbum> = await axiosClient.post("/album", createAlbumRequest)
+    return response.data
+}
+
+export const getAlbumsByUser = async (): Promise<PhotoAlbum[]> => {
+    const response: AxiosResponse<PhotoAlbum[]> = await axiosClient.get("/album/user")
     return response.data
 }
