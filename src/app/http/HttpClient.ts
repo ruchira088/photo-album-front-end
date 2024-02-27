@@ -1,10 +1,10 @@
+"use client"
+
 import axios from "axios"
-import {Maybe} from "monet"
+import {apiConfiguration} from "@/app/http/Configuration"
 
 export const axiosClient =
     axios.create({
-        baseURL:
-            Maybe.fromNull(process.env.NEXT_PUBLIC_API_URL)
-                .orLazy(() => `https://api.${window.location.hostname}`),
+        baseURL: apiConfiguration.baseUrl,
         withCredentials: true
     })

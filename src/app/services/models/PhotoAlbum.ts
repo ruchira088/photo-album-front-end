@@ -1,3 +1,4 @@
+
 export interface PhotoAlbum {
     readonly id: string
     readonly name: string

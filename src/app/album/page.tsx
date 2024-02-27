@@ -5,12 +5,21 @@ import AlbumCreationForm from "@/app/album/AlbumCreationForm"
 import Link from "next/link"
 import {PhotoAlbum} from "@/app/services/models/PhotoAlbum"
 import {getAlbumsByUser} from "@/app/services/AlbumService"
+import {usePathname, useRouter} from "next/navigation"
 
 const Album = () => {
     const [photoAlbums, setPhotoAlbums] = useState<PhotoAlbum[]>([])
+    const router = useRouter()
+    const pathname = usePathname()
 
     useEffect(() => {
-        getAlbumsByUser().then(photoAlbums => setPhotoAlbums(photoAlbums))
+        getAlbumsByUser()
+            .then(photoAlbums => setPhotoAlbums(photoAlbums))
+            .catch(error => {
+                if (error.response.status === 401) {
+                    router.push(`/login?next=${pathname}`)
+                }
+            })
     }, [])
 
     return (
