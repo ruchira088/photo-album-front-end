@@ -1,8 +1,9 @@
 "use client"
 
-import React, {useState} from "react"
-import {loginUser} from "@/app/services/AuthenticationService"
+import React, {useEffect, useState} from "react"
+import {authenticatedUser, loginUser} from "@/app/services/AuthenticationService"
 import {useRouter, useSearchParams} from "next/navigation"
+import Link from "next/link"
 
 const LoginPage = () => {
     const [email, setEmail] = useState("")
@@ -10,20 +11,24 @@ const LoginPage = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
 
-    console.log()
+    useEffect(() => {
+        authenticatedUser()
+            .then(() => router.push("/home"))
+            .catch(() => {})
+    }, [])
 
     const onSubmit = () => {
         loginUser({email, password})
             .then(() => {
-                const next = searchParams.get("next")
+                    const next = searchParams.get("next")
 
-                if (next != null) {
-                    router.push(next)
-                    // window.location.href = next
-                } else {
-
+                    if (next != null) {
+                        router.push(next)
+                    } else {
+                        router.push("/home")
+                    }
                 }
-            })
+            )
     }
 
     return (
@@ -38,6 +43,9 @@ const LoginPage = () => {
             </div>
             <div>
                 <button onClick={onSubmit}>Login</button>
+            </div>
+            <div>
+                <Link href="/sign-up">Sign Up</Link>
             </div>
         </div>
     )

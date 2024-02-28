@@ -16,3 +16,8 @@ export const authenticatedUser = async (): Promise<User> => {
     const response: AxiosResponse<User> = await axiosClient.get("/auth/current")
     return response.data
 }
+
+export const logout = async (): Promise<User> => {
+    const response: AxiosResponse<User> = await axiosClient.delete("/auth/logout")
+    return response.data
+}

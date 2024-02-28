@@ -5,7 +5,7 @@ import {createPhotoAlbum} from "@/app/services/AlbumService"
 import {parseString} from "@/app/helpers/StringHelpers"
 import {PhotoAlbum} from "@/app/services/models/PhotoAlbum"
 
-const AlbumCreationForm = () => {
+const AlbumCreationForm = (props: { onCreation: () => void}) => {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [isPublic, setPublic] = useState(false)
@@ -18,6 +18,13 @@ const AlbumCreationForm = () => {
             description: parseString(description),
             password: parseString(password)
         })
+
+        setName("")
+        setDescription("")
+        setPublic(false)
+        setPassword("")
+
+        props.onCreation()
 
         return album
     }
