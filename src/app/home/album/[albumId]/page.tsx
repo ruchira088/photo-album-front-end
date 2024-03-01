@@ -72,31 +72,44 @@ const AlbumPage =
     }
 
 const AlbumDetail = (props: { album: PhotoAlbum }) => {
-    const [images, setImages] = useState<File[]>([])
+    const [imageFiles, setImageFiles] = useState<File[]>([])
 
     const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
 
         if (files != null) {
-            setImages(Array.from(files))
+            setImageFiles(Array.from(files))
         }
     }
 
     const onClick = async () => {
-       await Promise.all(images.map(imageFile => postPhoto(props.album.id, imageFile)))
+        await Promise.all(imageFiles.map(imageFile => postPhoto(props.album.id, imageFile)))
     }
 
     return (
         <div>
             <div>
-                <div>Name</div>
-                <div>{props.album.name}</div>
+                <div>
+                    <div>Name</div>
+                    <div>{props.album.name}</div>
+                </div>
+                <div>
+                    <div>Image</div>
+                    <label htmlFor="files-upload"></label>
+                    <input id="files-upload" type="file" onInput={onFileUpload} multiple={true} accept="image/*"/>
+                </div>
+                <button onClick={onClick}>Upload</button>
             </div>
             <div>
-                <div>Image</div>
-                <input type="file" onInput={onFileUpload}/>
+                {
+                    imageFiles.map(
+                        (file, key) => {
+                            const imageUrl = URL.createObjectURL(file)
+                            return <img key={key} src={imageUrl}/>
+                        }
+                    )
+                }
             </div>
-            <button onClick={onClick}>Upload</button>
         </div>
     )
 }
