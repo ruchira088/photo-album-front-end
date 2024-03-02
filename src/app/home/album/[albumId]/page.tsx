@@ -9,7 +9,9 @@ import {Maybe} from "monet"
 import Link from "next/link"
 import {User} from "@/app/services/models/User"
 import {authenticatedUser} from "@/app/services/AuthenticationService"
-import {postPhoto} from "@/app/services/PhotoService"
+import {postPhoto, UploadProgress} from "@/app/services/PhotoService"
+
+import styles from "./styles.module.scss"
 
 const AlbumPage =
     ({params}: { params: { albumId: string } }) => {
@@ -73,17 +75,52 @@ const AlbumPage =
 
 const AlbumDetail = (props: { album: PhotoAlbum }) => {
     const [imageFiles, setImageFiles] = useState<File[]>([])
+    const [uploadProgresses, setUploadProgresses] = useState<{ [key: number]: UploadProgress }>({})
+    const [canRemove, setCanRemove] = useState<boolean>(true)
 
     const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files
 
         if (files != null) {
             setImageFiles(Array.from(files))
+            setUploadProgresses({})
         }
     }
 
+    async function resolveInGroups<T, R>(values: T[][], mapper: (value: T, id: number) => Promise<R>): Promise<R[]> {
+        let result: R[] = []
+
+        for (let i = 0; i < values.length; i++) {
+            const groupSize = values[i].length
+
+            const promises: Promise<R>[] =
+                values[i].map(((value, index) => mapper(value, (i * groupSize) + index)))
+
+            const outcome: R[] = await Promise.all(promises)
+
+            result = result.concat(outcome)
+        }
+
+        return result
+    }
+
     const onClick = async () => {
-        await Promise.all(imageFiles.map(imageFile => postPhoto(props.album.id, imageFile)))
+        setCanRemove(false)
+
+        const mapper = (imageFile: File, id: number) =>
+            postPhoto(
+                props.album.id,
+                imageFile,
+                uploadProgress =>
+                    setUploadProgresses(progresses =>
+                        Object.assign({}, progresses, {[id]: uploadProgress})
+                    )
+            )
+
+        const groups: File[][] = split(2, imageFiles)
+        const photos: Photo[] = await resolveInGroups(groups, mapper)
+
+        setCanRemove(true)
     }
 
     return (
@@ -95,8 +132,14 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
                 </div>
                 <div>
                     <div>Image</div>
-                    <label htmlFor="files-upload"></label>
-                    <input id="files-upload" type="file" onInput={onFileUpload} multiple={true} accept="image/*"/>
+                    <label htmlFor="files-upload" className={styles.fileUploadLabel}>Browse</label>
+                    <input
+                        id="files-upload"
+                        type="file"
+                        onInput={onFileUpload}
+                        multiple={true}
+                        accept="image/*"
+                        className={styles.fileUpload}/>
                 </div>
                 <button onClick={onClick}>Upload</button>
             </div>
@@ -105,7 +148,19 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
                     imageFiles.map(
                         (file, key) => {
                             const imageUrl = URL.createObjectURL(file)
-                            return <img key={key} src={imageUrl}/>
+                            const onRemove = () =>
+                                setImageFiles(files => files.filter(((currentFile, index) => index !== key)))
+
+                            const uploadProgress: UploadProgress | undefined = uploadProgresses[key]
+
+                            return (
+                                <div key={key}>
+                                    <img src={imageUrl}/>
+                                    {uploadProgress ?
+                                        <div>{uploadProgress.uploaded} / {uploadProgress.total} ({uploadProgress.progress})</div> : null}
+                                    {canRemove ? <button onClick={onRemove}>Remove</button> : null}
+                                </div>
+                            )
                         }
                     )
                 }
@@ -128,6 +183,26 @@ const PasswordForm = (props: { albumId: string, onSuccess: () => void }) => {
             </div>
         </div>
     )
+}
+
+function split<T>(groupSize: number, values: T[]): T[][] {
+    let result: T[][] = []
+    let current: T[] = []
+
+    for (let i = 0; i < values.length; i++) {
+        current.push(values[i])
+
+        if (current.length === groupSize) {
+            result = result.concat([current])
+            current = []
+        }
+    }
+
+    if (current.length !== 0) {
+        result = result.concat([current])
+    }
+
+    return result
 }
 
 export default AlbumPage
