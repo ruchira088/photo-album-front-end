@@ -87,21 +87,25 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
         }
     }
 
-    async function resolveInGroups<T, R>(values: T[][], mapper: (value: T, id: number) => Promise<R>): Promise<R[]> {
-        let result: R[] = []
+    async function resolveWithConcurrency<T, R>(concurrency: number, values: T[], mapper: (value: T, id: number) => Promise<R>): Promise<R[]> {
+        const result: Promise<R>[] = []
+        const activePromises: Map<number, Promise<[number, R]>> = new Map()
+        let count = 0
 
-        for (let i = 0; i < values.length; i++) {
-            const groupSize = values[i].length
+        while (count < values.length) {
+            const index = count
+            const promise: Promise<R> = mapper(values[index], index)
+            result.push(promise)
+            activePromises.set(index, promise.then(result => [index, result]))
+            count++
 
-            const promises: Promise<R>[] =
-                values[i].map(((value, index) => mapper(value, (i * groupSize) + index)))
-
-            const outcome: R[] = await Promise.all(promises)
-
-            result = result.concat(outcome)
+            if (activePromises.size === concurrency) {
+                const [index] = await Promise.any(activePromises.values())
+                activePromises.delete(index)
+            }
         }
 
-        return result
+        return await Promise.all(result)
     }
 
     const onClick = async () => {
@@ -117,8 +121,7 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
                     )
             )
 
-        const groups: File[][] = split(2, imageFiles)
-        const photos: Photo[] = await resolveInGroups(groups, mapper)
+        const photos: Photo[] = await resolveWithConcurrency(2, imageFiles, mapper)
 
         setCanRemove(true)
     }
@@ -183,26 +186,6 @@ const PasswordForm = (props: { albumId: string, onSuccess: () => void }) => {
             </div>
         </div>
     )
-}
-
-function split<T>(groupSize: number, values: T[]): T[][] {
-    let result: T[][] = []
-    let current: T[] = []
-
-    for (let i = 0; i < values.length; i++) {
-        current.push(values[i])
-
-        if (current.length === groupSize) {
-            result = result.concat([current])
-            current = []
-        }
-    }
-
-    if (current.length !== 0) {
-        result = result.concat([current])
-    }
-
-    return result
 }
 
 export default AlbumPage
