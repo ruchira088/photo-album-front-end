@@ -20,15 +20,15 @@ const AlbumPage =
         const [user, setUser] = useState<Maybe<User>>(Maybe.None)
         const [showPasswordForm, setShowPasswordForm] = useState(false)
 
-        const loadData = async () => {
+        const loadData = async (): Promise<void> => {
             const [photoAlbum, albumPhotos] = await Promise.all([getAlbumById(params.albumId), getPhotosForAlbum(params.albumId)])
             setAlbum(Maybe.Some(photoAlbum))
             setPhotos(albumPhotos)
         }
 
-        const onAuthenticationSuccess = async () => {
+        const onAuthenticationSuccess = (): Promise<void> => {
             setShowPasswordForm(false)
-            await loadData()
+            return loadData()
         }
 
         useEffect(() => {
@@ -62,8 +62,9 @@ const AlbumPage =
                 }
 
                 {
-                    photos.map(photo => <img key={photo.id}
-                                             src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>)
+                    photos.map(photo =>
+                        <img key={photo.id} src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
+                    )
                 }
                 {
                     showPasswordForm ?

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: photo-album-front-end
+  labels:
+    project: photo-album-front-end
+    branch: {{ git_branch }}

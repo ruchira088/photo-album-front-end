@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: front-end-deployment
+  namespace: photo-album-front-end
+spec:
+  selector:
+    matchLabels:
+      app: front-end
+      branch: {{ git_branch }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: front-end
+        branch: {{ git_branch }}
+    spec:
+      containers:
+        - name: front-end-container
+          image: ghcr.io/ruchira088/photo-album-front-end:{{ git_branch }}-{{ git_commit }}
+          ports:
+            - name: nextjs-port
+              containerPort: 3000
+          readinessProbe:
+            httpGet:
+              port: nextjs-port
+              path: /
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-readiness-probe
+          livenessProbe:
+            httpGet:
+              port: nextjs-port
+              path: /
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-liveness-probe
+          startupProbe:
+            periodSeconds: 5
+            failureThreshold: 5
+            httpGet:
+              port: nextjs-port
+              path: /
+              httpHeaders:
+                - name: X-Correlation-ID
+                  value: k8s-startup-probe
+      imagePullSecrets:
+        - name: docker-registry-credentials

@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: front-end-ingress
+  namespace: photo-album-front-end
+spec:
+  tls:
+    - secretName: front-end-tls-secret
+      hosts:
+        - photos.home.ruchij.com
+  rules:
+    - host: photos.home.ruchij.com
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+              service:
+                name: front-end-service
+                port:
+                  name: nextjs-port
