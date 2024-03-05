@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect, useState} from "react"
+import React, {Suspense, useEffect, useState} from "react"
 import {authenticatedUser, loginUser} from "@/app/services/AuthenticationService"
 import {useRouter, useSearchParams} from "next/navigation"
 import Link from "next/link"
@@ -14,8 +14,9 @@ const LoginPage = () => {
     useEffect(() => {
         authenticatedUser()
             .then(() => router.push("/home"))
-            .catch(() => {})
-    }, [])
+            .catch(() => {
+            })
+    })
 
     const onSubmit = () => {
         loginUser({email, password})
@@ -49,7 +50,13 @@ const LoginPage = () => {
             </div>
         </div>
     )
-
 }
 
-export default LoginPage
+const LoginPageContainer =
+    () => (
+        <Suspense>
+            <LoginPage/>
+        </Suspense>
+    )
+
+export default LoginPageContainer

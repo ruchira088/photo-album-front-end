@@ -20,7 +20,7 @@ const Home = () => {
                     router.push(`/login?next=${pathname}`)
                 }
             })
-    }, [])
+    })
 
     const loadAlbums = () =>
         getAlbumsByUser().then(photoAlbums => setPhotoAlbums(photoAlbums))

@@ -12,6 +12,7 @@ import {authenticatedUser} from "@/app/services/AuthenticationService"
 import {postPhoto, UploadProgress} from "@/app/services/PhotoService"
 
 import styles from "./styles.module.scss"
+import Image from "next/image"
 
 const AlbumPage =
     ({params}: { params: { albumId: string } }) => {
@@ -33,7 +34,7 @@ const AlbumPage =
 
         useEffect(() => {
             authenticatedUser().then(user => setUser(Maybe.Some(user)))
-        }, [])
+        })
 
         useEffect(() => {
             loadData()
@@ -46,7 +47,7 @@ const AlbumPage =
 
                     }
                 })
-        }, [])
+        })
 
         return (
             <div>
@@ -62,8 +63,10 @@ const AlbumPage =
                 }
 
                 {
-                    photos.map(photo =>
-                        <img key={photo.id} src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
+                    photos.map(((photo, index) =>
+                                <Image key={photo.id} alt={photo.title || `album-image-${index}`}
+                                       src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
+                        )
                     )
                 }
                 {
@@ -159,7 +162,7 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
 
                             return (
                                 <div key={key}>
-                                    <img src={imageUrl}/>
+                                    <Image alt={file.name} src={imageUrl}/>
                                     {uploadProgress ?
                                         <div>{uploadProgress.uploaded} / {uploadProgress.total} ({uploadProgress.progress})</div> : null}
                                     {canRemove ? <button onClick={onRemove}>Remove</button> : null}

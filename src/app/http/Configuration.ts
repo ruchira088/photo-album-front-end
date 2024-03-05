@@ -6,5 +6,5 @@ export interface Configuration {
 
 export const apiConfiguration: Configuration = {
     baseUrl: Maybe.fromNull(process.env.NEXT_PUBLIC_API_URL)
-        .orLazy(() => `https://api.${window.location.hostname}`)
+        .orJust("https://api.photo-album.home.ruchij.com")
 }
