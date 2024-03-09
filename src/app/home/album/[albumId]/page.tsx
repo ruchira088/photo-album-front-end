@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useEffect, useState} from "react"
+import React, {SyntheticEvent, useEffect, useState} from "react"
 import {Photo} from "@/app/services/models/Photo"
 import {PhotoAlbum} from "@/app/services/models/PhotoAlbum"
 import {authenticateAlbum, getAlbumById, getPhotosForAlbum} from "@/app/services/AlbumService"
@@ -9,10 +9,16 @@ import {Maybe} from "monet"
 import Link from "next/link"
 import {User} from "@/app/services/models/User"
 import {authenticatedUser} from "@/app/services/AuthenticationService"
-import {postPhoto, UploadProgress} from "@/app/services/PhotoService"
+import {postPhoto} from "@/app/services/PhotoService"
 
 import styles from "./styles.module.scss"
 import Image from "next/image"
+import {UploadProgress} from "@/app/services/models/UploadProgress"
+
+export interface Dimensions {
+    readonly width: number
+    readonly height: number
+}
 
 const AlbumPage =
     ({params}: { params: { albumId: string } }) => {
@@ -34,7 +40,7 @@ const AlbumPage =
 
         useEffect(() => {
             authenticatedUser().then(user => setUser(Maybe.Some(user)))
-        })
+        }, [])
 
         useEffect(() => {
             loadData()
@@ -47,7 +53,7 @@ const AlbumPage =
 
                     }
                 })
-        })
+        }, [])
 
         return (
             <div>
@@ -64,8 +70,15 @@ const AlbumPage =
 
                 {
                     photos.map(((photo, index) =>
-                                <Image key={photo.id} alt={photo.title || `album-image-${index}`}
+                            <div  key={photo.id}>
+                                { photo.size}
+                                <Image
+                                       alt={photo.title || `album-image-${index}`}
+                                       width={photo.width}
+                                       height={photo.height}
                                        src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
+                            </div>
+
                         )
                     )
                 }
@@ -79,6 +92,7 @@ const AlbumPage =
 
 const AlbumDetail = (props: { album: PhotoAlbum }) => {
     const [imageFiles, setImageFiles] = useState<File[]>([])
+    const [imageDimensions, setImageDimensions] = useState<Dimensions[]>([])
     const [uploadProgresses, setUploadProgresses] = useState<{ [key: number]: UploadProgress }>({})
     const [canRemove, setCanRemove] = useState<boolean>(true)
 
@@ -119,6 +133,7 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
             postPhoto(
                 props.album.id,
                 imageFile,
+                imageDimensions[id],
                 uploadProgress =>
                     setUploadProgresses(progresses =>
                         Object.assign({}, progresses, {[id]: uploadProgress})
@@ -128,6 +143,21 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
         const photos: Photo[] = await resolveWithConcurrency(2, imageFiles, mapper)
 
         setCanRemove(true)
+    }
+
+    const onImageLoad = (index: number) => (event: SyntheticEvent<HTMLImageElement>) => {
+        const imageElement = event.target as HTMLImageElement
+        const dimensions: Dimensions = { height: imageElement.naturalHeight, width: imageElement.naturalWidth}
+
+        const existingDimensions: Dimensions | undefined = imageDimensions[index]
+
+        if (dimensions.width != existingDimensions?.width || dimensions.height != existingDimensions.height) {
+            setImageDimensions(imageDimensions => {
+                const updated = [...imageDimensions]
+                updated[index] = dimensions
+                return updated
+            })
+        }
     }
 
     return (
@@ -155,14 +185,17 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
                     imageFiles.map(
                         (file, key) => {
                             const imageUrl = URL.createObjectURL(file)
-                            const onRemove = () =>
+                            const onRemove = () => {
                                 setImageFiles(files => files.filter(((currentFile, index) => index !== key)))
+                                setImageDimensions(imageDimensions => imageDimensions.filter((dimension, index) => index !== key))
+                            }
 
                             const uploadProgress: UploadProgress | undefined = uploadProgresses[key]
 
                             return (
                                 <div key={key}>
-                                    <Image alt={file.name} src={imageUrl}/>
+                                    <img className={styles.imagePreview} alt={file.name} src={imageUrl} onLoad={onImageLoad(key)}/>
+                                    <div>{file.size}</div>
                                     {uploadProgress ?
                                         <div>{uploadProgress.uploaded} / {uploadProgress.total} ({uploadProgress.progress})</div> : null}
                                     {canRemove ? <button onClick={onRemove}>Remove</button> : null}

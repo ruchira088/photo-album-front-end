@@ -1,7 +1,10 @@
 import {axiosClient} from "@/app/http/HttpClient"
-import {AxiosResponse} from "axios"
+import {AxiosRequestConfig, AxiosResponse} from "axios"
 import {PhotoAlbum} from "@/app/services/models/PhotoAlbum"
 import {Photo} from "@/app/services/models/Photo"
+import {Dimensions} from "@/app/home/album/[albumId]/page"
+import {Maybe} from "monet"
+import {UploadProgress, uploadProgressAxiosRequestConfig} from "@/app/services/models/UploadProgress"
 
 export interface CreateAlbumRequest {
     readonly name: string
@@ -31,6 +34,23 @@ export const getPhotosForAlbum = async (albumId: string): Promise<Photo[]> => {
 }
 
 export const authenticateAlbum = async (albumId: string, password: string): Promise<PhotoAlbum> => {
-    const response: AxiosResponse<PhotoAlbum> = await axiosClient.post(`/album/id/${albumId}/authenticate`, { password })
+    const response: AxiosResponse<PhotoAlbum> = await axiosClient.post(`/album/id/${albumId}/authenticate`, {password})
     return response.data
 }
+
+export const uploadAlbumCover =
+    async (albumId: string, imageFile: File, dimensions: Dimensions, onProgress?: (uploadProgress: UploadProgress) => void): Promise<PhotoAlbum> => {
+        const formData = new FormData()
+        formData.set("photo", imageFile)
+        formData.set("height", dimensions.height.toString(10))
+        formData.set("width", dimensions.width.toString(10))
+
+        const config: AxiosRequestConfig | undefined =
+            Maybe.fromNull(onProgress)
+                .map(uploadProgressAxiosRequestConfig)
+                .orUndefined()
+
+        const response: AxiosResponse<PhotoAlbum> = await axiosClient.post(`/album/id/${albumId}/album-cover`, formData, config)
+
+        return response.data
+    }

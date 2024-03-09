@@ -1,7 +1,18 @@
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1>Hello World</h1>
-    </main>
-  );
-}
+import React from "react"
+import Link from "next/link"
+
+const Index = () => (
+    <div>
+        <Link href="/home">
+            <div>Home</div>
+        </Link>
+        <Link href="/login">
+            <div>Login</div>
+        </Link>
+        <Link href="/sign-up">
+            <div>Sign Up</div>
+        </Link>
+    </div>
+)
+
+export default Index

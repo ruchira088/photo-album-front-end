@@ -16,7 +16,7 @@ const LoginPage = () => {
             .then(() => router.push("/home"))
             .catch(() => {
             })
-    })
+    }, [router])
 
     const onSubmit = () => {
         loginUser({email, password})
