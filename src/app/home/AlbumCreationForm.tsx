@@ -7,8 +7,9 @@ import {PhotoAlbum} from "@/app/services/models/PhotoAlbum"
 import styles from "@/app/home/album/[albumId]/styles.module.scss"
 import {Maybe} from "monet"
 import {Dimensions} from "@/app/home/album/[albumId]/page"
+import {renderIfTrue} from "@/app/helpers/ComponentHelpers"
 
-const AlbumCreationForm = (props: { onCreation: () => void }) => {
+const AlbumCreationForm = (props: { onCreation: () => void, onCancel: () => void }) => {
     const [name, setName] = useState("")
     const [description, setDescription] = useState("")
     const [imageData, setImageData] = useState<Maybe<[File, string]>>(Maybe.None)
@@ -28,16 +29,19 @@ const AlbumCreationForm = (props: { onCreation: () => void }) => {
             imageDimensions.map(dimensions => uploadAlbumCover(album.id, file, dimensions))
         ).orJust(Promise.resolve())
 
+        reset()
+        props.onCreation()
+
+        return album
+    }
+
+    const reset = () => {
         setName("")
         setDescription("")
         setPublic(false)
         setPassword("")
         setImageData(Maybe.None)
         setImageDimensions(Maybe.None)
-
-        props.onCreation()
-
-        return album
     }
 
     const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,6 +72,7 @@ const AlbumCreationForm = (props: { onCreation: () => void }) => {
 
     return (
         <div>
+            <button onClick={props.onCancel}>Cancel</button>
             <div>
                 <label>Name</label>
                 <input value={name} onChange={event => setName(event.target.value)}/>
@@ -105,13 +110,16 @@ const AlbumCreationForm = (props: { onCreation: () => void }) => {
                        }
                        }/>
             </div>
-            {!isPublic ?
-                (
-                    <div>
+            {
+                renderIfTrue(
+        !isPublic,
+        <div>
                         <label>Password</label>
-                        <input value={password} onChange={event => setPassword(event.target.value)}/>
+                        <input
+                            value={password}
+                            onChange={event => setPassword(event.target.value)}/>
                     </div>
-                ) : null
+                )
             }
             <div>
                 <button onClick={onSubmit}>Create</button>

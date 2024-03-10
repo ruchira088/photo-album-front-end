@@ -5,6 +5,8 @@ import {authenticatedUser, loginUser} from "@/app/services/AuthenticationService
 import {useRouter, useSearchParams} from "next/navigation"
 import Link from "next/link"
 
+import styles from "./styles.module.scss"
+
 const LoginPage = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -14,9 +16,8 @@ const LoginPage = () => {
     useEffect(() => {
         authenticatedUser()
             .then(() => router.push("/home"))
-            .catch(() => {
-            })
-    }, [router])
+            .catch(() => {})
+    }, [])
 
     const onSubmit = () => {
         loginUser({email, password})
@@ -33,19 +34,19 @@ const LoginPage = () => {
     }
 
     return (
-        <div>
-            <div>
+        <div className={styles.loginForm}>
+            <div className={styles.email}>
                 <label>Email</label>
-                <input value={email} onChange={event => setEmail(event.target.value)}/>
+                <input value={email} type="email" onChange={event => setEmail(event.target.value)}/>
             </div>
-            <div>
+            <div className={styles.password}>
                 <label>Password</label>
-                <input value={password} onChange={event => setPassword(event.target.value)}/>
+                <input value={password} type="password" onChange={event => setPassword(event.target.value)}/>
             </div>
-            <div>
+            <div className={styles.loginButton}>
                 <button onClick={onSubmit}>Login</button>
             </div>
-            <div>
+            <div className={styles.signUpLink}>
                 <Link href="/sign-up">Sign Up</Link>
             </div>
         </div>

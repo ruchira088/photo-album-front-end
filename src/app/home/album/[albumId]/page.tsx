@@ -12,7 +12,6 @@ import {authenticatedUser} from "@/app/services/AuthenticationService"
 import {postPhoto} from "@/app/services/PhotoService"
 
 import styles from "./styles.module.scss"
-import Image from "next/image"
 import {UploadProgress} from "@/app/services/models/UploadProgress"
 
 export interface Dimensions {
@@ -72,10 +71,8 @@ const AlbumPage =
                     photos.map(((photo, index) =>
                             <div  key={photo.id}>
                                 { photo.size}
-                                <Image
+                                <img
                                        alt={photo.title || `album-image-${index}`}
-                                       width={photo.width}
-                                       height={photo.height}
                                        src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
                             </div>
 
@@ -143,6 +140,9 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
         const photos: Photo[] = await resolveWithConcurrency(2, imageFiles, mapper)
 
         setCanRemove(true)
+        setImageFiles([])
+        setImageDimensions([])
+        setUploadProgresses({})
     }
 
     const onImageLoad = (index: number) => (event: SyntheticEvent<HTMLImageElement>) => {
