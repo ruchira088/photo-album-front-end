@@ -10,3 +10,14 @@
   max-width: 25em;
   max-height: 25em;
 }
+
+.albumImage {
+  max-width: 50vw;
+  max-height: 50vh;
+  display: flex;
+}
+
+.imageGallery {
+  display: flex;
+  flex-wrap: wrap;
+}

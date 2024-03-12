@@ -83,7 +83,7 @@ const AlbumCreationForm = (props: { onCreation: () => void, onCancel: () => void
             </div>
             <div>
                 <div>
-                    <div>Image</div>
+                    <div>Album Cover Image</div>
                     <label htmlFor="album-cover-upload" className={styles.fileUploadLabel}>Browse</label>
                     <input
                         id="album-cover-upload"

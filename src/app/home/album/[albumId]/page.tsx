@@ -67,18 +67,20 @@ const AlbumPage =
                     )
                 }
 
-                {
-                    photos.map(((photo, index) =>
-                            <div  key={photo.id}>
-                                { photo.size}
-                                <img
-                                       alt={photo.title || `album-image-${index}`}
-                                       src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
-                            </div>
+                <div className={styles.imageGallery}>
+                    {
+                        photos.map(((photo, index) =>
+                                    <div key={photo.id}>
+                                        {photo.size} {photo.width} X {photo.height}
+                                        <img className={styles.albumImage}
+                                             alt={photo.title || `album-image-${index}`}
+                                             src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
+                                    </div>
 
+                            )
                         )
-                    )
-                }
+                    }
+                </div>
                 {
                     showPasswordForm ?
                         <PasswordForm albumId={params.albumId} onSuccess={onAuthenticationSuccess}/> : null
@@ -147,7 +149,7 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
 
     const onImageLoad = (index: number) => (event: SyntheticEvent<HTMLImageElement>) => {
         const imageElement = event.target as HTMLImageElement
-        const dimensions: Dimensions = { height: imageElement.naturalHeight, width: imageElement.naturalWidth}
+        const dimensions: Dimensions = {height: imageElement.naturalHeight, width: imageElement.naturalWidth}
 
         const existingDimensions: Dimensions | undefined = imageDimensions[index]
 
@@ -194,7 +196,8 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
 
                             return (
                                 <div key={key}>
-                                    <img className={styles.imagePreview} alt={file.name} src={imageUrl} onLoad={onImageLoad(key)}/>
+                                    <img className={styles.imagePreview} alt={file.name} src={imageUrl}
+                                         onLoad={onImageLoad(key)}/>
                                     <div>{file.size}</div>
                                     {uploadProgress ?
                                         <div>{uploadProgress.uploaded} / {uploadProgress.total} ({uploadProgress.progress})</div> : null}
