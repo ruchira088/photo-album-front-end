@@ -7,17 +7,16 @@
 }
 
 .imagePreview {
-  max-width: 25em;
-  max-height: 25em;
+  height: 20em;
 }
 
 .albumImage {
-  max-width: 50vw;
-  max-height: 50vh;
+  height: 20em;
   display: flex;
 }
 
 .imageGallery {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
