@@ -41,6 +41,10 @@ const AlbumPage =
             authenticatedUser().then(user => setUser(Maybe.Some(user)))
         }, [])
 
+        const onPhotosUploaded = (uploadedPhotos: Photo[]) => {
+            setPhotos(photos => photos.concat(uploadedPhotos))
+        }
+
         useEffect(() => {
             loadData()
                 .catch(error => {
@@ -63,7 +67,7 @@ const AlbumPage =
                     user.flatMap(userValue =>
                         album
                             .filter(albumValue => albumValue.userId === userValue.userId)
-                            .map(albumValue => <AlbumDetail key={albumValue.id} album={albumValue}/>)
+                            .map(albumValue => <AlbumDetail key={albumValue.id} album={albumValue} onUploadCompleted={onPhotosUploaded}/>)
                     )
                 }
 
@@ -89,7 +93,7 @@ const AlbumPage =
         )
     }
 
-const AlbumDetail = (props: { album: PhotoAlbum }) => {
+const AlbumDetail = (props: { album: PhotoAlbum, onUploadCompleted: (photos: Photo[]) => void }) => {
     const [imageFiles, setImageFiles] = useState<File[]>([])
     const [imageDimensions, setImageDimensions] = useState<Dimensions[]>([])
     const [uploadProgresses, setUploadProgresses] = useState<{ [key: number]: UploadProgress }>({})
@@ -145,6 +149,7 @@ const AlbumDetail = (props: { album: PhotoAlbum }) => {
         setImageFiles([])
         setImageDimensions([])
         setUploadProgresses({})
+        props.onUploadCompleted(photos)
     }
 
     const onImageLoad = (index: number) => (event: SyntheticEvent<HTMLImageElement>) => {
