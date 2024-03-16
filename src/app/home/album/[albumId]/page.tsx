@@ -13,6 +13,7 @@ import {postPhoto} from "@/app/services/PhotoService"
 
 import styles from "./styles.module.scss"
 import {UploadProgress} from "@/app/services/models/UploadProgress"
+import {prettyBytes} from "@/app/helpers/StringHelpers"
 
 export interface Dimensions {
     readonly width: number
@@ -75,7 +76,7 @@ const AlbumPage =
                     {
                         photos.map(((photo, index) =>
                                     <div key={photo.id}>
-                                        {photo.size} {photo.width} X {photo.height}
+                                        {prettyBytes(photo.size)} {photo.width} X {photo.height}
                                         <img className={styles.albumImage}
                                              alt={photo.title || `album-image-${index}`}
                                              src={`${apiConfiguration.baseUrl}/photo/id/${photo.id}/image-file`}/>
@@ -203,7 +204,7 @@ const AlbumDetail = (props: { album: PhotoAlbum, onUploadCompleted: (photos: Pho
                                 <div key={key}>
                                     <img className={styles.imagePreview} alt={file.name} src={imageUrl}
                                          onLoad={onImageLoad(key)}/>
-                                    <div>{file.size}</div>
+                                    <div>{prettyBytes(file.size)}</div>
                                     {uploadProgress ?
                                         <div>{uploadProgress.uploaded} / {uploadProgress.total} ({uploadProgress.progress})</div> : null}
                                     {canRemove ? <button onClick={onRemove}>Remove</button> : null}
