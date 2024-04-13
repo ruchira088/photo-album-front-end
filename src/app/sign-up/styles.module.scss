@@ -1,15 +1,5 @@
-.input {
-  display: block;
-  border: 1px solid lightgray;
-  border-radius: 0.25em;
-  height: 2em;
-  padding: 0.5em;
-  width: 100%;
-}
+@import "src/app/common";
 
 .signUpButton {
-  color: white;
-  background-color: black;
-  padding: 0.5em;
-  border-radius: 0.5em;
+  @include formButton;
 }

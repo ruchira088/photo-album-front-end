@@ -1,35 +1,5 @@
-@mixin inputField {
-  width: 10em;
-  margin: 1em 0;
+@import "src/app/common";
 
-  label {
-    font-size: 1.25em;
-  }
-
-  input {
-    font-size: 1.25em;
-  }
-}
-
-.loginForm {
-
-  .email {
-    @include inputField;
-  }
-
-  .password {
-    @include inputField;
-  }
-
-  .loginButton {
-    margin: 1em 0;
-
-    button {
-      font-size: 1.25em;
-      font-weight: bold;
-      padding: 0.25em 0.5em;
-    }
-  }
-
-  .signUpLink {}
+.loginButton {
+  @include formButton;
 }

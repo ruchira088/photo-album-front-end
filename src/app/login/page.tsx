@@ -34,20 +34,25 @@ const LoginPage = () => {
     }
 
     return (
-        <div className={styles.loginForm}>
-            <div className={styles.email}>
-                <label>Email</label>
-                <input value={email} type="email" onChange={event => setEmail(event.target.value)}/>
+        <div className="mx-auto max-w-sm space-y-6">
+            <div className="space-y-2 text-center">
+                <h1 className="text-3xl font-bold">Login</h1>
+                <p className="text-gray-500 dark:text-gray-400">Enter your credential to login</p>
             </div>
-            <div className={styles.password}>
-                <label>Password</label>
-                <input value={password} type="password" onChange={event => setPassword(event.target.value)}/>
+            <div className="space-y-2">
+                <label className="font-bold">Email</label>
+                <input className={styles.input} value={email} type="email"
+                       onChange={event => setEmail(event.target.value)}/>
             </div>
-            <div className={styles.loginButton}>
-                <button onClick={onSubmit}>Login</button>
+            <div className="space-y-2">
+                <label className="font-bold">Password</label>
+                <input className={styles.input} value={password} type="password"
+                       onChange={event => setPassword(event.target.value)}/>
             </div>
-            <div className={styles.signUpLink}>
-                <Link href="/sign-up">Sign Up</Link>
+            <button className={`w-full ${styles.loginButton}`} onClick={onSubmit}>Login</button>
+            <div className="mt-4 text-center text-sm">
+                Already have an account?
+                <Link className="underline" href="/sign-up">Sign Up</Link>
             </div>
         </div>
     )
